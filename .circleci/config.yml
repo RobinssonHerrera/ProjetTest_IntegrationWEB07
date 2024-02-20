@@ -25,13 +25,28 @@ jobs:
     steps:
       - run: echo "Déploiement en staging"
 
-  acceptance_tests:
+  acceptance_tests1:
     docker:
       - image: cimg/base:stable
     steps:
       - run: echo "Tests d'acceptation 1"
+    
+  acceptance_tests2:
+    docker:
+      - image: cimg/base:stable
+    steps:
       - run: echo "Tests d'acceptation 2"
+
+  acceptance_tests3:
+    docker:
+      - image: cimg/base:stable
+    steps:
       - run: echo "Tests d'acceptation 3"
+
+  acceptance_tests4:
+    docker:
+      - image: cimg/base:stable
+    steps:
       - run: echo "Tests d'acceptation 4"
 
   deploy_production:
@@ -53,9 +68,25 @@ workflows:
       - deploy_staging:
           requires:
             - integration_tests_backend
-      - acceptance_tests:
+      - acceptance_tests1:
+          type: approval
+          requires:
+            - deploy_staging
+      - acceptance_tests2:
+          type: approval
+          requires:
+            - deploy_staging
+      - acceptance_tests3:
+          type: approval
+          requires:
+            - deploy_staging
+      - acceptance_tests4:
+          type: approval
           requires:
             - deploy_staging
       - deploy_production:
           requires:
-            - acceptance_tests
+            - acceptance_tests1
+            - acceptance_tests2
+            - acceptance_tests3
+            - acceptance_tests4

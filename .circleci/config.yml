@@ -1,28 +1,61 @@
 version: 2.1
 
 jobs:
-  sayhelloWorld:
-    description: A job that says Hello
-    machine: true
+  checkout_and_unit_test:
+    docker:
+      - image: cimg/base:stable
     steps:
-      - run: echo "Hello World!"
-  sayhelloWithParams:
-    description: A job that says Hello
-    parameters:
-      saywhat:
-        description: "To whom shall we say hello?"
-        default: "World"
-        type: string
-    machine: true
+      - run: echo "Checkout et tests unitaires"
+
+  deploy_backend:
+    docker:
+      - image: cimg/base:stable
     steps:
-      - run: echo "Hello << parameters.saywhat >>"
+      - run: echo "Déploiement du backend"
+
+  integration_tests_backend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: echo "Tests d'intégration du backend"
+
+  deploy_staging:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: echo "Déploiement en staging"
+
+  acceptance_tests:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: echo "Tests d'acceptation 1"
+      - run: echo "Tests d'acceptation 2"
+      - run: echo "Tests d'acceptation 3"
+      - run: echo "Tests d'acceptation 4"
+
+  deploy_production:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: echo "Déploiement en production"
 
 workflows:
-  monWorkflow:
+  build_and_deploy:
     jobs:
-      - sayhelloWithParams:
-          saywhat: Intégration Web !!!!
-      - sayhelloWorld
-      - sayhelloWithParams:
-          saywhat: Everyone
-
+      - checkout_and_unit_test
+      - deploy_backend:
+          requires:
+            - checkout_and_unit_test
+      - integration_tests_backend:
+          requires:
+            - deploy_backend
+      - deploy_staging:
+          requires:
+            - integration_tests_backend
+      - acceptance_tests:
+          requires:
+            - deploy_staging
+      - deploy_production:
+          requires:
+            - acceptance_tests
